@@ -54,7 +54,7 @@ public class TestAWSResource {
         Resource resource = new AWSResource();
         Map<String, String> resourceFieldValueMap = resource.getFieldToValueMap();
         // The only value in the map is the boolean of opt out
-        Assert.assertEquals(resourceFieldValueMap.size(), 1);
+        Assert.assertEquals(resourceFieldValueMap.size(), 2);
     }
 
     @Test
@@ -113,6 +113,8 @@ public class TestAWSResource {
                     value = "INSTANCE";
                 } else if (field.getName().equals("FIELD_OPT_OUT_OF_JANITOR")) {
                     value = "false";
+                } else if (field.getName().equals("FIELD_CONSENT_TO_DELETE")) {
+                    value = "true";
                 } else {
                     value = (String) (field.get(null));
                 }
@@ -131,7 +133,7 @@ public class TestAWSResource {
                 .withState(Resource.CleanupState.MARKED).withDescription("description")
                 .withExpectedTerminationTime(now).withActualTerminationTime(now)
                 .withLaunchTime(now).withMarkTime(now).withNnotificationTime(now).withOwnerEmail("ownerEmail")
-                .withTerminationReason("terminationReason").withOptOutOfJanitor(false);
+                .withTerminationReason("terminationReason").withOptOutOfJanitor(false).withConsentToDelete(true);
         ((AWSResource) resource).setAWSResourceState("awsResourceState");
 
         for (Map.Entry<String, String> field : getTestingFields().entrySet()) {

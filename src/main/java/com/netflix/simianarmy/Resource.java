@@ -314,6 +314,14 @@ public interface Resource {
     boolean isOptOutOfJanitor();
 
     /**
+     * Gets the boolean to indicate whether or not the user has consented to deletion of this resource in the UI
+     * @return true if the resource has been explicitly opted in
+     */
+    boolean hasConsentToDelete();
+    void setConsentToDelete(boolean consentToDelete);
+    Resource withConsentToDelete(boolean consentToDelete);
+
+    /**
      * Sets the flag to indicate whether or not the resource is opted out of Janitor monkey
      * so it will not be cleaned.
      * @param optOutOfJanitor true if the resource is opted out of Janitor monkey, otherwise false

@@ -48,6 +48,7 @@ public class AWSResource implements Resource {
     private Date launchTime;
     private Date markTime;
     private boolean optOutOfJanitor;
+    private boolean consentToDelete;
     private String awsResourceState;
 
     /** The field name for resourceId. **/
@@ -76,6 +77,7 @@ public class AWSResource implements Resource {
     public static final String FIELD_MARK_TIME = "markTime";
     /** The field name for isOptOutOfJanitor. **/
     public static final String FIELD_OPT_OUT_OF_JANITOR = "optOutOfJanitor";
+    public static final String FIELD_CONSENT_TO_DELETE = "consentToDelete";
     /** The field name for awsResourceState. **/
     public static final String FIELD_AWS_RESOURCE_STATE = "awsResourceState";
 
@@ -110,6 +112,7 @@ public class AWSResource implements Resource {
         // Additional fields are serialized while tags are not. So if any tags need to be
         // serialized as well, put them to additional fields.
         fieldToValue.put(FIELD_OPT_OUT_OF_JANITOR, String.valueOf(isOptOutOfJanitor()));
+        fieldToValue.put(FIELD_CONSENT_TO_DELETE, String.valueOf(hasConsentToDelete()));
 
         fieldToValue.putAll(additionalFields);
 
@@ -154,6 +157,8 @@ public class AWSResource implements Resource {
                 resource.setAWSResourceState(value);
             } else if (name.equals(FIELD_OPT_OUT_OF_JANITOR)) {
                 resource.setOptOutOfJanitor("true".equals(value));
+            } else if (name.equals(FIELD_CONSENT_TO_DELETE)) {
+                resource.setConsentToDelete("true".equals(value));
             } else {
                 // put all other fields into additional fields
                 resource.setAdditionalField(name, value);
@@ -406,14 +411,33 @@ public class AWSResource implements Resource {
 
     /** {@inheritDoc} */
     @Override
+    public boolean hasConsentToDelete() {
+        return consentToDelete;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void setOptOutOfJanitor(boolean optOutOfJanitor) {
         this.optOutOfJanitor = optOutOfJanitor;
     }
 
     /** {@inheritDoc} */
     @Override
+    public void setConsentToDelete(boolean consentToDelete) {
+        this.consentToDelete = consentToDelete;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public Resource withOptOutOfJanitor(boolean optOut) {
         setOptOutOfJanitor(optOut);
+        return this;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Resource withConsentToDelete(boolean consent) {
+        setConsentToDelete(consent);
         return this;
     }
 
@@ -489,7 +513,8 @@ public class AWSResource implements Resource {
         .withResourceType(getResourceType())
         .withState(getState())
         .withTerminationReason(getTerminationReason())
-        .withOptOutOfJanitor(isOptOutOfJanitor());
+        .withOptOutOfJanitor(isOptOutOfJanitor())
+        .withConsentToDelete(hasConsentToDelete());
         ((AWSResource) clone).setAWSResourceState(awsResourceState);
 
         ((AWSResource) clone).additionalFields.putAll(additionalFields);

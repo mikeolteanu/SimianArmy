@@ -361,6 +361,7 @@ public abstract class AbstractJanitor implements Janitor {
     protected boolean canClean(Resource resource, Date now) {
         return resource.getState() == Resource.CleanupState.MARKED
                 && !resource.isOptOutOfJanitor()
+                && resource.hasConsentToDelete()
                 && resource.getExpectedTerminationTime() != null
                 && resource.getExpectedTerminationTime().before(now)
                 && resource.getNotificationTime() != null

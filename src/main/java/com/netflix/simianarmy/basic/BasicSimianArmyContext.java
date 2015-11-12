@@ -20,6 +20,7 @@ package com.netflix.simianarmy.basic;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.LinkedList;
+import java.util.Hashtable;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -111,6 +112,26 @@ public class BasicSimianArmyContext implements Monkey.Context {
             loadConfigurationFileIntoProperties(configFile);
         }
         LOGGER.info("The following are properties in the context.");
+        Hashtable<String, String> overrides = new Hashtable<String, String>();
+
+        overrides.put("simianarmy.calendar.isMonkeyTime","JM_DRY_RUN");
+        overrides.put("simianarmy.janitor.leashed","JM_DRY_RUN");
+        overrides.put("simianarmy.janitor.notification.sourceEmail","JM_DEFAULT_EMAIL");
+        overrides.put("simianarmy.janitor.summaryEmail.to","JM_DEFAULT_EMAIL");
+        overrides.put("simianarmy.janitor.notification.defaultEmail","JM_DEFAULT_EMAIL");
+        overrides.put("simianarmy.client.aws.accountKey","JM_AWS_ACCESS_KEY");
+        overrides.put("simianarmy.client.aws.secretKey","JM_AWS_SECRET_KEY");
+        overrides.put("simianarmy.client.aws.region","JM_AWS_REGION");
+        overrides.put("simianarmy.janitor.rule.orphanedInstanceRule.enabled","JM_RULE_ORPHANEDINSTANCE_ENABLED");
+        overrides.put("simianarmy.janitor.rule.untaggedRule.enabled","JM_RULE_UNTAGGED_ENABLED");
+        overrides.put("simianarmy.janitor.rule.untaggedRule.requiredTags","JM_RULE_UNTAGGED_REQUIRED_TAGS");
+        overrides.put("simianarmy.janitor.rule.oldDetachedVolumeRule.enabled","JM_RULE_DETACHEDVOLUME_ENABLED");
+        overrides.put("simianarmy.janitor.rule.deleteOnTerminationRule.enabled","JM_RULE_DELETEONTERMINATION_ENABLED");
+        overrides.put("simianarmy.janitor.rule.noGeneratedAMIRule.enabled","JM_RULE_NOGENERATEDAMI_ENABLED");
+        overrides.put("simianarmy.janitor.rule.oldEmptyASGRule.enabled","JM_RULE_OLDEMPTYASG_ENABLED");
+        overrides.put("simianarmy.janitor.rule.suspendedASGRule.enabled","JM_RULE_SUSPENDEDASG_ENABLED");
+        overrides.put("simianarmy.janitor.rule.oldUnusedLaunchConfigRule.enabled","JM_RULE_OLDUNUSEDLAUNCHCONFIG_ENABLED");
+        overrides.put("simianarmy.janitor.rule.unusedImageRule.enabled","JM_RULE_UNUSEDIMAGE_ENABLED");
         for (Entry<Object, Object> prop : properties.entrySet()) {
             Object propertyKey = prop.getKey();
             String propVal = prop.getValue().toString();
@@ -119,10 +140,20 @@ public class BasicSimianArmyContext implements Monkey.Context {
             } else {
                 LOGGER.info(String.format("%s = (not shown here)", propertyKey));
             }
-            if (propVal.startsWith("${env:")) {
-                String envVariableName = propVal.substring(6, propVal.length()-1);
-                String envVariableValue = System.getenv(envVariableName);
-                prop.setValue(envVariableValue);
+            String overrideValue = null;
+            String potentialOverride = overrides.get(propertyKey.toString());
+            if (potentialOverride != null) {
+                String mapped = System.getenv(potentialOverride);
+                if (mapped != null) {
+                    overrideValue = mapped;
+                }
+            }
+            String explicit = System.getenv(propertyKey.toString());
+            if (explicit != null) {
+                overrideValue = explicit;
+            }
+            if (overrideValue != null) {
+                prop.setValue(overrideValue);
                 propVal = prop.getValue().toString();
                 LOGGER.info("Property updated from environment variables.");
                 if (isSafeToLog(propertyKey)) {

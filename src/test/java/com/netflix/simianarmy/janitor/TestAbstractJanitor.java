@@ -94,7 +94,8 @@ public class TestAbstractJanitor extends AbstractJanitor {
             resources.add(new AWSResource().withId(String.valueOf(i))
                     .withRegion(TEST_REGION)
                     .withResourceType(TestResourceType.TEST_RESOURCE_TYPE)
-                    .withOptOutOfJanitor(false));
+                    .withOptOutOfJanitor(false)
+                    .withConsentToDelete(true));
         }
         return resources;
     }
@@ -157,6 +158,7 @@ public class TestAbstractJanitor extends AbstractJanitor {
         for (Resource r : generateTestingResources(n)) {
             int id = Integer.parseInt(r.getId());
             if (id % 4 == 1 || id % 4 == 2) {
+                r.setConsentToDelete(true);
                 r.setOptOutOfJanitor(true);
                 r.setState(CleanupState.MARKED);
                 r.setExpectedTerminationTime(now);

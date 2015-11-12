@@ -84,7 +84,7 @@ public class TestSimpleDBJanitorResourceTracker extends SimpleDBJanitorResourceT
                 .withDescription(description).withOwnerEmail(ownerEmail).withRegion(region)
                 .withState(state).withTerminationReason(terminationReason)
                 .withExpectedTerminationTime(expectedTerminationTime)
-                .withMarkTime(markTime).withOptOutOfJanitor(false)
+                .withMarkTime(markTime).withOptOutOfJanitor(false).withConsentToDelete(true)
                 .setAdditionalField(fieldName, fieldValue);
         ArgumentCaptor<PutAttributesRequest> arg = ArgumentCaptor.forClass(PutAttributesRequest.class);
 
@@ -113,6 +113,7 @@ public class TestSimpleDBJanitorResourceTracker extends SimpleDBJanitorResourceT
         Assert.assertEquals(map.remove(AWSResource.FIELD_STATE), state.name());
         Assert.assertEquals(map.remove(AWSResource.FIELD_TERMINATION_REASON), terminationReason);
         Assert.assertEquals(map.remove(AWSResource.FIELD_OPT_OUT_OF_JANITOR), "false");
+        Assert.assertEquals(map.remove(AWSResource.FIELD_CONSENT_TO_DELETE), "true");
         Assert.assertEquals(map.remove(fieldName), fieldValue);
         Assert.assertEquals(map.size(), 0);
     }
@@ -135,10 +136,10 @@ public class TestSimpleDBJanitorResourceTracker extends SimpleDBJanitorResourceT
         String fieldValue = "fieldValue456";
 
         SelectResult result1 = mkSelectResult(id1, resourceType, state, description, ownerEmail,
-                region, terminationReason, expectedTerminationTime, markTime, false, fieldName, fieldValue);
+                region, terminationReason, expectedTerminationTime, markTime, false, true, fieldName, fieldValue);
         result1.setNextToken("nextToken");
         SelectResult result2 = mkSelectResult(id2, resourceType, state, description, ownerEmail,
-                region, terminationReason, expectedTerminationTime, markTime, true, fieldName, fieldValue);
+                region, terminationReason, expectedTerminationTime, markTime, true, true, fieldName, fieldValue);
 
         ArgumentCaptor<SelectRequest> arg = ArgumentCaptor.forClass(SelectRequest.class);
 
@@ -194,7 +195,7 @@ public class TestSimpleDBJanitorResourceTracker extends SimpleDBJanitorResourceT
 
     private SelectResult mkSelectResult(String id, AWSResourceType resourceType, Resource.CleanupState state,
             String description, String ownerEmail, String region, String terminationReason,
-            Date expectedTerminationTime, Date markTime, boolean optOut, String fieldName, String fieldValue) {
+            Date expectedTerminationTime, Date markTime, boolean optOut, boolean consent, String fieldName, String fieldValue) {
         Item item = new Item();
         List<Attribute> attrs = new LinkedList<Attribute>();
         attrs.add(new Attribute(AWSResource.FIELD_RESOURCE_ID, id));
@@ -209,6 +210,7 @@ public class TestSimpleDBJanitorResourceTracker extends SimpleDBJanitorResourceT
         attrs.add(new Attribute(AWSResource.FIELD_MARK_TIME,
                 AWSResource.DATE_FORMATTER.print(markTime.getTime())));
         attrs.add(new Attribute(AWSResource.FIELD_OPT_OUT_OF_JANITOR, String.valueOf(optOut)));
+        attrs.add(new Attribute(AWSResource.FIELD_CONSENT_TO_DELETE, String.valueOf(consent)));
         attrs.add(new Attribute(fieldName, fieldValue));
 
         item.setAttributes(attrs);
