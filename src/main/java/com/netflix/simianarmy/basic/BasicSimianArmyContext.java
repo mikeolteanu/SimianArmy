@@ -113,10 +113,23 @@ public class BasicSimianArmyContext implements Monkey.Context {
         LOGGER.info("The following are properties in the context.");
         for (Entry<Object, Object> prop : properties.entrySet()) {
             Object propertyKey = prop.getKey();
+            String propVal = prop.getValue().toString();
             if (isSafeToLog(propertyKey)) {
-                LOGGER.info(String.format("%s = %s", propertyKey, prop.getValue()));
+                LOGGER.info(String.format("%s = %s", propertyKey, propVal));
             } else {
                 LOGGER.info(String.format("%s = (not shown here)", propertyKey));
+            }
+            if (propVal.startsWith("${env:")) {
+                String envVariableName = propVal.substring(6, propVal.length()-1);
+                String envVariableValue = System.getenv(envVariableName);
+                prop.setValue(envVariableValue);
+                propVal = prop.getValue().toString();
+                LOGGER.info("Property updated from environment variables.");
+                if (isSafeToLog(propertyKey)) {
+                    LOGGER.info(String.format("%s = %s", propertyKey, propVal));
+                } else {
+                    LOGGER.info(String.format("%s = (not shown here)", propertyKey));
+                }
             }
         }
 
